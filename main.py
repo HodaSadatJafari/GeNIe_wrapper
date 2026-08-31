@@ -18,14 +18,13 @@ class InferRequest(BaseModel):
     evidence: dict
 
 
-# @app.get("/sw.js")
-# async def service_worker():
-#     return FileResponse("frontend/sw.js", media_type="application/javascript")
-
+@app.get("/")
+async def home():
+    r
 
 @app.get("/")
 async def home():
-    return FileResponse("frontend/index.html")
+eturn FileResponse("frontend/index.html")
 
 
 @app.post("/api/infer")
