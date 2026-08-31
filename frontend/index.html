@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>برنا — داشبورد استنتاج شبکه بیزی</title>
+  <meta name="description" content="برنا؛ داشبورد حرفه‌ای برای آپلود شواهد و مشاهده احتمالات خروجی شبکه بیزی">
+
+  <!-- ====== PWA META ====== -->
+  <meta name="theme-color" content="#2563EB">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="برنا">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="">
+
+  <!-- ====== FONTS ====== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ====== LIBRARIES ====== -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+
+  <style>
+    /* ====== TOKENS ====== */
+    :root {
+      --color-bg: #FAFBFC;
+      --color-surface: #FFFFFF;
+      --color-surface-alt: #F1F5F9;
+      --color-surface-hover: #F8FAFC;
+      --color-text: #1A2332;
+      --color-text-secondary: #64748B;
+      --color-text-muted: #94A3B8;
+      --color-border: #E2E8F0;
+      --color-border-strong: #CBD5E1;
+      --color-action: #2563EB;
+      --color-action-hover: #1D4ED8;
+      --color-action-light: #EFF6FF;
+      --color-action-lighter: #DBEAFE;
+      --color-success: #10B981;
+      --color-success-light: #D1FAE5;
+      --color-warning: #F59E0B;
+      --color-warning-light: #FEF3C7;
+      --color-danger: #EF4444;
+      --color-danger-light: #FEE2E2;
+
+      --font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.125rem;
+      --text-xl: 1.25rem;
+      --text-2xl: 1.5rem;
+      --text-3xl: 1.875rem;
+      --text-4xl: 2.5rem;
+      --text-5xl: 3.5rem;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-24: 96px;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-pill: 9999px;
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.08);
+
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ====== RESET & BASE ====== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-family);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input { font-family: inherit; }
+    .hidden { display: none !important; }
+
+    /* ====== SCREENS ====== */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .screen.active { animation: screenIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* ====== LOGIN ====== */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-6);
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(37,99,235,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.03) 0%, transparent 50%),
+        var(--color-bg);
+    }
+    .login-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-12);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow-md);
+    }
+    .login-logo { margin-bottom: var(--space-2); }
+    .login-subtitle {
+      color: var(--color-text-secondary);
+      font-size: var(--text-base);
+      margin-bottom: var(--space-12);
+    }
+
+    /* ====== LOGO ====== */
+    .logo-mark {
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      color: var(--color-action);
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+    .logo-mark::after {
+      content: '';
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--color-success);
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: super;
+      font-size: 0.4em;
+    }
+
+    /* ====== FORMS ====== */
+    .form-group { margin-bottom: var(--space-6); }
+    .form-group label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    .form-group input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      background: var(--color-surface);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .form-group input::placeholder { color: var(--color-text-muted); }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--color-action);
+      box-shadow: 0 0 0 3px var(--color-action-light);
+    }
+
+    /* ====== BUTTONS ====== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-base);
+      font-weight: 600;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--color-action); color: #fff; }
+    .btn-primary:hover { background: var(--color-action-hover); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-block { width: 100%; }
+    .btn-outline {
+      background: transparent;
+      color: var(--color-action);
+      border: 1.5px solid var(--color-action);
+    }
+    .btn-outline:hover { background: var(--color-action-light); }
+    .btn-ghost {
+      color: var(--color-text-secondary);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+    }
+    .btn-ghost:hover { background: var(--color-surface-alt); color: var(--color-text); }
+
+    /* ====== NAVBAR ====== */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-8);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav-logo { font-size: var(--text-xl); font-weight: 800; color: var(--color-action); letter-spacing: -0.02em; }
+    .nav-actions { display: flex; align-items: center; gap: var(--space-4); }
+    .nav-user {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      padding: var(--space-1) var(--space-3);
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-pill);
+    }
+
+    /* ====== MAIN CONTENT ====== */
+    .main-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: var(--space-12) var(--space-6) var(--space-24);
+    }
+    .section-header { margin-bottom: var(--space-12); }
+    .section-header h1 {
+      font-size: var(--text-3xl);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-2);
+    }
+    .section-header p {
+      color: var(--color-text-secondary);
+      font-size: var(--text-lg);
+    }
+
+    /* ====== UPLOAD ZONE ====== */
+    .upload-zone {
+      border: 2px dashed var(--color-border-strong);
+      border-radius: var(--radius-lg);
+      padding: var(--space-16) var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      background: var(--color-surface);
+    }
+    .upload-zone:hover {
+      border-color: var(--color-action);
+      background: var(--color-action-light);
+    }
+    .upload-zone.dragover {
+      border-color: var(--color-action);
+      background: var(--color-action-lighter);
+      transform: scale(1.01);
+    }
+    .upload-icon {
+      display: inline-flex;
+      margin-bottom: var(--space-6);
+      color: var(--color-text-muted);
+      transition: color var(--transition);
+    }
+    .upload-zone:hover .upload-icon { color: var(--color-action); }
+    .upload-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+    .upload-hint {
+      color: var(--color-text-secondary);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-3);
+    }
+    .upload-formats {
+      color: var(--color-text-muted);
+      font-size: var(--text-xs);
+    }
+
+    /* ====== UPLOAD ACTIONS ====== */
+    .upload-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: var(--space-6);
+    }
+    .sample-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-action);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      transition: background var(--transition);
+    }
+    .sample-link:hover { background: var(--color-action-light); }
+    .sample-link svg { width: 16px; height: 16px; }
+
+    /* ====== EVIDENCE PREVIEW ====== */
+    .evidence-preview {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: var(--space-6);
+    }
+    .evidence-preview-header {
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .evidence-preview-header h3 {
+      font-size: var(--text-base);
+      font-weight: 600;
+    }
+    .evidence-count {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      background: var(--color-surface-alt);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+    }
+    .evidence-table { width: 100%; border-collapse: collapse; }
+    .evidence-table th, .evidence-table td {
+      padding: var(--space-3) var(--space-6);
+      text-align: right;
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--text-sm);
+    }
+    .evidence-table th {
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      background: var(--color-surface-alt);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .evidence-table td:first-child { font-weight: 500; }
+    .evidence-table td:last-child {
+      color: var(--color-action);
+      font-weight: 600;
+    }
+    .evidence-table tr:last-child td { border-bottom: none; }
+
+    .run-button-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: var(--space-8);
+    }
+    .run-button-wrap .btn { min-width: 200px; }
+
+    /* ====== RESULTS GRID ====== */
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      margin-bottom: var(--space-8);
+    }
+
+    /* ====== CHART CARD ====== */
+    .chart-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .card-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      margin-bottom: var(--space-6);
+      align-self: flex-start;
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+      aspect-ratio: 1;
+      margin: var(--space-4) 0;
+    }
+    .chart-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+    .chart-center-value {
+      display: block;
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      color: var(--color-text);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .chart-center-label {
+      display: block;
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      margin-top: var(--space-1);
+    }
+
+    /* ====== RESULTS DETAILS ====== */
+    .results-details {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+    .details-section {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+    }
+    .outcome-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .outcome-item:last-child { border-bottom: none; }
+    .outcome-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .outcome-label {
+      flex: 1;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-text);
+    }
+    .outcome-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      max-width: 100px;
+    }
+    .outcome-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .outcome-value {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      min-width: 50px;
+      text-align: left;
+      direction: ltr;
+    }
+
+    .evidence-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      margin: var(--space-1) 0 var(--space-1) var(--space-1);
+    }
+    .evidence-chip-node { color: var(--color-text-secondary); }
+    .evidence-chip-value { color: var(--color-action); font-weight: 600; }
+
+    /* ====== STATUS BANNER ====== */
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-6);
+      font-weight: 500;
+    }
+    .status-banner.mock { background: var(--color-warning-light); color: #92400E; }
+    .status-banner.real { background: var(--color-success-light); color: #065F46; }
+    .status-banner svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ====== LOADING OVERLAY ====== */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(250, 251, 252, 0.92);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .loading-content { text-align: center; }
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-action);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .loading-text {
+      margin-top: var(--space-4);
+      color: var(--color-text-secondary);
+      font-size: var(--text-base);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ====== ERROR MESSAGE ====== */
+    .error-message {
+      background: var(--color-danger-light);
+      color: #991B1B;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      margin-top: var(--space-4);
+      text-align: center;
+    }
+
+    /* ====== FOOTER NOTE ====== */
+    .footer-note {
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: var(--text-xs);
+      padding: var(--space-6) var(--space-4);
+    }
+
+    /* ====== ACCESSIBILITY ====== */
+    :focus-visible {
+      outline: 2px solid var(--color-action);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+    .btn:focus-visible { outline-offset: 2px; }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 768px) {
+      .results-grid { grid-template-columns: 1fr; }
+      .section-header h1 { font-size: var(--text-2xl); }
+      .login-card { padding: var(--space-8) var(--space-6); }
+    }
+    @media (max-width: 640px) {
+      .navbar { padding: var(--space-3) var(--space-4); }
+      .nav-user { display: none; }
+      .main-content { padding: var(--space-8) var(--space-4) var(--space-16); }
+      .upload-zone { padding: var(--space-12) var(--space-4); }
+      .chart-card { padding: var(--space-6) var(--space-4); }
+      .details-section { padding: var(--space-4); }
+      .evidence-table th, .evidence-table td { padding: var(--space-2) var(--space-3); }
+    }
+
+    /* ====== REDUCED MOTION ====== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .loading-spinner { animation: spin 1s linear infinite; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== LOGIN SCREEN ====== -->
+  <div id="screen-login" class="screen active">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-logo">
+          <span class="logo-mark">برنا</span>
+        </div>
+        <p class="login-subtitle">داشبورد استنتاج شبکه بیزی</p>
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="email">ایمیل</label>
+            <input type="email" id="email" placeholder="name@example.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="password">رمز عبور</label>
+            <input type="password" id="password" placeholder="••••••••" required minlength="3" autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">ورود به داشبورد</button>
+        </form>
+      </div>
+    </div>
+    <p class="footer-note">نسخه نمایشی — احراز هویت واقعی نیازمند بک‌اند FastAPI است</p>
+  </div>
+
+  <!-- ====== UPLOAD SCREEN ====== -->
+  <div id="screen-upload" class="screen">
+    <nav class="navbar">
+      <div class="nav-logo">برنا</div>
+      <div class="nav-actions">
+        <span class="nav-user" id="nav-user-email-upload"></span>
+        <button class="btn-ghost" id="logout-btn-upload">خروج</button>
+      </div>
+    </nav>
+    <main class="main-content">
+      <div class="section-header">
+        <h1>آپلود شواهد</h1>
+        <p>فایل اکسل حاوی شواهد (evidence) را آپلود کنید تا استنتاج انجام شود</p>
+      </div>
+
+      <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="آپلود فایل اکسل">
+        <div class="upload-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <p class="upload-title">فایل اکسل را اینجا بکشید</p>
+        <p class="upload-hint">یا برای انتخاب فایل کلیک کنید</p>
+        <p class="upload-formats">فرمت‌های پشتیبانی‌شده: xlsx, xls</p>
+        <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
+      </div>
+
+      <div class="upload-actions">
+        <a href="#" class="sample-link" id="sample-download" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          دانلود فایل نمونه
+        </a>
+      </div>
+
+      <div id="evidence-preview" class="evidence-preview hidden"></div>
+      <div id="upload-error" class="error-message hidden"></div>
+
+      <div class="run-button-wrap hidden" id="run-wrap">
+        <button class="btn btn-primary" id="run-inference-btn">اجرای استنتاج</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ====== RESULTS SCREEN ====== -->
+  <div id="screen-results" class="screen">
+    <nav class="navbar">
+      <div class="nav-logo">برنا</div>
+      <div class="nav-actions">
+        <span class="nav-user" id="nav-user-email-results"></span>
+        <button class="btn-ghost" id="logout-btn-results">خروج</button>
+      </div>
+    </nav>
+    <main class="main-content">
+      <div class="section-header">
+        <h1>نتایج استنتاج</h1>
+        <p>توزیع احتمالات گره هدف بر اساس شواهد ورودی</p>
+      </div>
+
+      <div id="status-banner"></div>
+
+      <div class="results-grid">
+        <div class="chart-card">
+          <h3 class="card-title">توزیع احتمالات</h3>
+          <div class="chart-container">
+            <canvas id="results-chart"></canvas>
+            <div class="chart-center">
+              <span class="chart-center-value" id="center-value">۰٪</span>
+              <span class="chart-center-label" id="center-label">بیشترین احتمال</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-details">
+          <div class="details-section">
+            <h3 class="card-title">احتمالات خروجی</h3>
+            <div id="outcomes-list"></div>
+          </div>
+          <div class="details-section">
+            <h3 class="card-title">شواهد اعمال‌شده</h3>
+            <div id="applied-evidence"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-outline" id="reload-btn">بارگذاری مجدد</button>
+    </main>
+  </div>
+
+  <!-- ====== LOADING OVERLAY ====== -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">در حال محاسبه احتمالات…</p>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+
+      /* ====== PWA MANIFEST (Blob) ====== */
+      try {
+        const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">'
+          + '<rect width="512" height="512" rx="100" fill="#2563EB"/>'
+          + '<text x="256" y="360" font-size="280" text-anchor="middle" fill="#fff" '
+          + 'font-family="sans-serif" font-weight="700">ب</text></svg>';
+        const iconUrl = 'data:image/svg+xml,' + encodeURIComponent(iconSvg);
+        const manifest = {
+          name: 'برنا',
+          short_name: 'برنا',
+          description: 'داشبورد استنتاج شبکه بیزی',
+          start_url: '.',
+          display: 'standalone',
+          background_color: '#FAFBFC',
+          theme_color: '#2563EB',
+          dir: 'rtl',
+          lang: 'fa',
+          icons: [{ src: iconUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
+      } catch(e) {}
+
+      /* ====== PWA SERVICE WORKER ====== */
+      navigator.serviceWorker.register('/sw.js')
+      .then(registration => {
+          console.log('Service Worker registered:', registration.scope);
+      })
+      .catch(error => {
+          console.error('Service Worker registration failed:', error);
+      });
+      /* ====== STATE ====== */
+      var userEmail = '';
+      var parsedEvidence = {};
+      var inferResults = null;
+      var chartInstance = null;
+
+      /* ====== HELPERS ====== */
+      function toPersian(num) {
+        return num.toString().replace(/\d/g, function(d) {
+          return '۰۱۲۳۴۵۶۷۸۹'[d];
+        });
+      }
+
+      function toPersianPercent(num) {
+        return toPersian(Math.round(num)) + '٪';
+      }
+
+      function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(function(s) {
+          s.classList.remove('active');
+        });
+        document.getElementById('screen-' + id).classList.add('active');
+        window.scrollTo(0, 0);
+      }
+
+      function updateUserDisplay() {
+        var els = document.querySelectorAll('.nav-user');
+        els.forEach(function(el) {
+          el.textContent = userEmail;
+        });
+      }
+
+      function showLoading(text) {
+        var overlay = document.getElementById('loading-overlay');
+        var txt = overlay.querySelector('.loading-text');
+        if (text) txt.textContent = text;
+        overlay.classList.remove('hidden');
+      }
+
+      function hideLoading() {
+        document.getElementById('loading-overlay').classList.add('hidden');
+      }
+
+      function showUploadError(msg) {
+        var el = document.getElementById('upload-error');
+        el.textContent = msg;
+        el.classList.remove('hidden');
+      }
+
+      function hideUploadError() {
+        document.getElementById('upload-error').classList.add('hidden');
+      }
+
+      /* ====== LOGIN ====== */
+      var loginForm = document.getElementById('login-form');
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var email = document.getElementById('email').value.trim();
+        var password = document.getElementById('password').value.trim();
+        if (!email || password.length < 3) return;
+        userEmail = email;
+        try { sessionStorage.setItem('borna_user', email); } catch(e) {}
+        showScreen('upload');
+        updateUserDisplay();
+      });
+
+      /* ====== Logout ====== */
+      function handleLogout() {
+        userEmail = '';
+        parsedEvidence = {};
+        inferResults = null;
+        try { sessionStorage.removeItem('borna_user'); } catch(e) {}
+        document.getElementById('login-form').reset();
+        resetUploadScreen();
+        showScreen('login');
+      }
+      document.getElementById('logout-btn-upload').addEventListener('click', handleLogout);
+      document.getElementById('logout-btn-results').addEventListener('click', handleLogout);
+
+      /* ====== Auto-login check ====== */
+      try {
+        var saved = sessionStorage.getItem('borna_user');
+        if (saved) {
+          userEmail = saved;
+          showScreen('upload');
+          updateUserDisplay();
+        }
+      } catch(e) {}
+
+      /* ====== Sample Excel download ====== */
+      document.getElementById('sample-download').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (typeof XLSX === 'undefined') return;
+        var wb = XLSX.utils.book_new();
+        var data = [
+          ['Forecast', 'Market', 'Competition', 'Funding', 'Team'],
+          ['Good', 'Growing', 'Low', 'Sufficient', 'Strong']
+        ];
+        var ws = XLSX.utils.aoa_to_sheet(data);
+        ws['!cols'] = [{wch:14},{wch:14},{wch:14},{wch:14},{wch:14}];
+        XLSX.utils.book_append_sheet(wb, ws, 'Evidence');
+        XLSX.writeFile(wb, 'borna-evidence-sample.xlsx');
+      });
+
+      /* ====== Upload Zone ====== */
+      var uploadZone = document.getElementById('upload-zone');
+      var fileInput = document.getElementById('file-input');
+
+      uploadZone.addEventListener('click', function() { fileInput.click(); });
+      uploadZone.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+      });
+
+      ['dragenter','dragover'].forEach(function(evt) {
+        uploadZone.addEventListener(evt, function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.add('dragover');
+        });
+      });
+      ['dragleave','drop'].forEach(function(evt) {
+        uploadZone.addEventListener(evt, function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          uploadZone.classList.remove('dragover');
+        });
+      });
+      uploadZone.addEventListener('drop', function(e) {
+        var files = e.dataTransfer.files;
+        if (files && files.length > 0) handleFile(files[0]);
+      });
+      fileInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files.length > 0) handleFile(e.target.files[0]);
+      });
+
+      /* ====== File handling ====== */
+      function handleFile(file) {
+        hideUploadError();
+        if (!file) return;
+        var fileName = file.name.toLowerCase();
+        if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+          showUploadError('فرمت فایل نامعتبر است. فقط فایل‌های xlsx و xls پشتیبانی می‌شوند.');
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            var data = new Uint8Array(e.target.result);
+            var wb = XLSX.read(data, { type: 'array' });
+            var evidence = parseEvidenceFromWorkbook(wb);
+            if (!evidence || Object.keys(evidence).length === 0) {
+              showUploadError('هیچ شاهدی در فایل یافت نشد. لطفاً ساختار فایل را بررسی کنید.');
+              return;
+            }
+            parsedEvidence = evidence;
+            showEvidencePreview(evidence);
+          } catch (err) {
+            showUploadError('خطا در خواندن فایل: ' + err.message);
+          }
+        };
+        reader.onerror = function() {
+          showUploadError('خطا در خواندن فایل. لطفاً دوباره تلاش کنید.');
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      function parseEvidenceFromWorkbook(wb) {
+        var sheet = wb.Sheets[wb.SheetNames[0]];
+        var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        if (rows.length < 2) return null;
+
+        var headers = rows[0].map(function(h) {
+          return h ? h.toString().trim() : '';
+        });
+
+        /* Format A: two columns (Node | Value) */
+        var firstHeader = headers[0] ? headers[0].toLowerCase() : '';
+        if (headers.length === 2 &&
+            (firstHeader === 'node' || firstHeader === 'نود' || firstHeader === 'گره' || firstHeader === 'name')) {
+          var ev = {};
+          for (var i = 1; i < rows.length; i++) {
+            var node = rows[i][0];
+            var value = rows[i][1];
+            if (node && value) ev[node.toString().trim()] = value.toString().trim();
+          }
+          return ev;
+        }
+
+        /* Format B: headers = node names, first data row = values */
+        var evidence = {};
+        var dataRow = rows[1];
+        for (var j = 0; j < headers.length; j++) {
+          var nodeName = headers[j];
+          var val = dataRow ? dataRow[j] : '';
+          if (nodeName && val) evidence[nodeName] = val.toString().trim();
+        }
+        return evidence;
+      }
+
+      function showEvidencePreview(evidence) {
+        var container = document.getElementById('evidence-preview');
+        var keys = Object.keys(evidence);
+        var html = '<div class="evidence-preview-header">'
+          + '<h3>شواهد استخراج‌شده</h3>'
+          + '<span class="evidence-count">' + toPersian(keys.length) + ' گره</span>'
+          + '</div><table class="evidence-table"><thead><tr>'
+          + '<th>گره (Node)</th><th>مقدار (Value)</th>'
+          + '</tr></thead><tbody>';
+        keys.forEach(function(k) {
+          html += '<tr><td>' + escapeHtml(k) + '</td><td>' + escapeHtml(evidence[k]) + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        container.classList.remove('hidden');
+        document.getElementById('run-wrap').classList.remove('hidden');
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function resetUploadScreen() {
+        document.getElementById('evidence-preview').classList.add('hidden');
+        document.getElementById('evidence-preview').innerHTML = '';
+        document.getElementById('run-wrap').classList.add('hidden');
+        document.getElementById('file-input').value = '';
+        hideUploadError();
+        parsedEvidence = {};
+      }
+
+      /* ====== Inference ====== */
+      document.getElementById('run-inference-btn').addEventListener('click', runInference);
+
+      async function runInference() {
+        showLoading('در حال محاسبه احتمالات…');
+        var isMock = false;
+        try {
+          var response = await fetch('/api/infer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ evidence: parsedEvidence })
+          });
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          var data = await response.json();
+          if (!data.outcomes || !Array.isArray(data.outcomes)) throw new Error('Invalid response');
+          inferResults = data;
+        } catch (err) {
+          /* Mock fallback */
+          await new Promise(function(r) { setTimeout(r, 800); });
+          inferResults = mockInference(parsedEvidence);
+          isMock = true;
+        }
+        hideLoading();
+        showScreen('results');
+        renderResults(isMock);
+      }
+
+      function mockInference(evidence) {
+        var positiveStates = ['good','strong','growing','sufficient','low','yes','true','positive','high','بله','بالا','قوی','گود','کافی','رشد'];
+        var negativeStates = ['poor','weak','declining','insufficient','bad','no','false','negative','ضعیف','ناکافی','افت','خیر','بد'];
+
+        var posCount = 0, negCount = 0, neutralCount = 0;
+        Object.values(evidence).forEach(function(val) {
+          var v = (val || '').toString().toLowerCase().trim();
+          if (positiveStates.some(function(w) { return v.indexOf(w) >= 0; })) posCount++;
+          else if (negativeStates.some(function(w) { return v.indexOf(w) >= 0; })) negCount++;
+          else neutralCount++;
+        });
+        var total = posCount + negCount + neutralCount || 1;
+        var adjustment = (posCount - negCount) / total * 0.32;
+        var pSuccess = Math.max(0.05, Math.min(0.9, 0.33 + adjustment));
+        var pFailure = Math.max(0.05, Math.min(0.9, 0.33 - adjustment));
+        var pModerate = Math.max(0.05, 1 - pSuccess - pFailure);
+        var sum = pSuccess + pModerate + pFailure;
+
+        return {
+          target_node: 'Success',
+          is_mock: true,
+          outcomes: [
+            { id: 'Success',  label: 'موفق',   probability: pSuccess / sum,  color: '#10B981' },
+            { id: 'Moderate', label: 'متوسط',  probability: pModerate / sum, color: '#F59E0B' },
+            { id: 'Failure',  label: 'ناموفق', probability: pFailure / sum,  color: '#EF4444' }
+          ]
+        };
+      }
+
+      /* ====== Results rendering ====== */
+      function renderResults(isMock) {
+        /* Status banner */
+        var banner = document.getElementById('status-banner');
+        if (isMock) {
+          banner.className = 'status-banner mock';
+          banner.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+            + 'حالت نمایشی — بک‌اند FastAPI متصل نیست. نتایج شبیه‌سازی‌شده است.';
+        } else {
+          banner.className = 'status-banner real';
+          banner.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
+            + 'نتایج محاسبه‌شده توسط موتور استنتاج pysmile (بک‌اند متصل است).';
+        }
+
+        var outcomes = inferResults.outcomes;
+        outcomes.forEach(function(o) {
+          o.probability = Math.max(0, o.probability || 0);
+        });
+
+        /* Find dominant outcome */
+        var dominant = outcomes[0];
+        outcomes.forEach(function(o) {
+          if (o.probability > dominant.probability) dominant = o;
+        });
+
+        /* Center value */
+        var centerVal = document.getElementById('center-value');
+        var centerLabel = document.getElementById('center-label');
+        centerVal.textContent = toPersianPercent(dominant.probability * 100);
+        centerVal.style.color = dominant.color || '#1A2332';
+        centerLabel.textContent = dominant.label || 'بیشترین احتمال';
+
+        /* Animate center number */
+        animateValue(centerVal, 0, dominant.probability * 100, 800);
+
+        /* Donut chart */
+        var ctx = document.getElementById('results-chart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: outcomes.map(function(o) { return o.label; }),
+            datasets: [{
+              data: outcomes.map(function(o) { return Math.round(o.probability * 1000) / 10; }),
+              backgroundColor: outcomes.map(function(o) { return o.color; }),
+              borderWidth: 0,
+              hoverOffset: 8,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '72%',
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                rtl: true,
+                bodyFont: { family: 'Vazirmatn', size: 13 },
+                titleFont: { family: 'Vazirmatn', size: 13 },
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                  label: function(ctx) {
+                    return ' ' + ctx.label + ': ' + toPersianPercent(ctx.raw);
+                  }
+                }
+              }
+            },
+            animation: {
+              animateRotate: true,
+              duration: 800
+            }
+          }
+        });
+
+        /* Outcomes list */
+        var listHtml = '';
+        outcomes.forEach(function(o) {
+          var pct = o.probability * 100;
+          listHtml += '<div class="outcome-item">'
+            + '<div class="outcome-dot" style="background:' + (o.color || '#94A3B8') + '"></div>'
+            + '<span class="outcome-label">' + escapeHtml(o.label || o.id) + '</span>'
+            + '<div class="outcome-bar"><div class="outcome-bar-fill" style="background:' + (o.color || '#94A3B8') + ';width:0%"></div></div>'
+            + '<span class="outcome-value">' + toPersianPercent(pct) + '</span>'
+            + '</div>';
+        });
+        var listEl = document.getElementById('outcomes-list');
+        listEl.innerHTML = listHtml;
+
+        /* Animate bars */
+        setTimeout(function() {
+          var bars = listEl.querySelectorAll('.outcome-bar-fill');
+          outcomes.forEach(function(o, i) {
+            if (bars[i]) bars[i].style.width = (o.probability * 100) + '%';
+          });
+        }, 100);
+
+        /* Applied evidence */
+        var evHtml = '';
+        Object.keys(parsedEvidence).forEach(function(k) {
+          evHtml += '<span class="evidence-chip">'
+            + '<span class="evidence-chip-node">' + escapeHtml(k) + '</span>'
+            + '<span style="color:#94A3B8">=</span>'
+            + '<span class="evidence-chip-value">' + escapeHtml(parsedEvidence[k]) + '</span>'
+            + '</span>';
+        });
+        document.getElementById('applied-evidence').innerHTML = evHtml;
+      }
+
+      function animateValue(el, start, end, duration) {
+        var startTime = performance.now();
+        function update(now) {
+          var elapsed = now - startTime;
+          var progress = Math.min(elapsed / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          var val = start + (end - start) * eased;
+          el.textContent = toPersianPercent(val);
+          if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+      }
+
+      /* ====== Reload button ====== */
+      document.getElementById('reload-btn').addEventListener('click', function() {
+        resetUploadScreen();
+        showScreen('upload');
+        updateUserDisplay();
+      });
+
+    });
+  </script>
+</body>
+</html>
