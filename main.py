@@ -20,11 +20,7 @@ class InferRequest(BaseModel):
 
 @app.get("/")
 async def home():
-    r
-
-@app.get("/")
-async def home():
-eturn FileResponse("frontend/index.html")
+    return FileResponse("frontend/index.html")
 
 
 @app.post("/api/infer")
