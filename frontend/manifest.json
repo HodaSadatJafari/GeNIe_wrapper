@@ -1,0 +1,19 @@
+{
+  "name": "برنا",
+  "short_name": "برنا",
+  "description": "داشبورد استنتاج شبکه بیزی",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAFBFC",
+  "theme_color": "#2563EB",
+  "dir": "rtl",
+  "lang": "fa",
+  "icons": [
+    {
+      "src": "/borna_genei_icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

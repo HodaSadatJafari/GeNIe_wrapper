@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="برنا">
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="">
+  <link rel="manifest" href="/manifest.json">
 
   <!-- ====== FONTS ====== -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -720,29 +720,6 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', function() {
-
-      /* ====== PWA MANIFEST (Blob) ====== */
-      try {
-        const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">'
-          + '<rect width="512" height="512" rx="100" fill="#2563EB"/>'
-          + '<text x="256" y="360" font-size="280" text-anchor="middle" fill="#fff" '
-          + 'font-family="sans-serif" font-weight="700">ب</text></svg>';
-        const iconUrl = 'data:image/svg+xml,' + encodeURIComponent(iconSvg);
-        const manifest = {
-          name: 'برنا',
-          short_name: 'برنا',
-          description: 'داشبورد استنتاج شبکه بیزی',
-          start_url: '.',
-          display: 'standalone',
-          background_color: '#FAFBFC',
-          theme_color: '#2563EB',
-          dir: 'rtl',
-          lang: 'fa',
-          icons: [{ src: iconUrl, sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]
-        };
-        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-        document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
-      } catch(e) {}
 
       /* ====== PWA SERVICE WORKER ====== */
       navigator.serviceWorker.register('/sw.js')
