@@ -18,9 +18,9 @@ class InferRequest(BaseModel):
     evidence: dict
 
 
-@app.get("/sw.js")
-async def service_worker():
-    return FileResponse("frontend/sw.js", media_type="application/javascript")
+# @app.get("/sw.js")
+# async def service_worker():
+#     return FileResponse("frontend/sw.js", media_type="application/javascript")
 
 
 @app.get("/")
