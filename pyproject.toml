@@ -11,4 +11,5 @@ dependencies = [
 ]
 
 [[tool.uv.index]]
+name = "bayesfusion"
 url = "https://support.bayesfusion.com/pysmile-A/"
